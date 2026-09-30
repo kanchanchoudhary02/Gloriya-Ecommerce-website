@@ -1416,4 +1416,18 @@ async function refundCancelledOrder(orderId){
   if(res.ok || data) loadAdminReturns();
 }
 
+async function decideReturn(id, action){
+  if(!["approve","reject"].includes(action)) return;
+  try{
+    const res=await fetch(`${API_BASE}/admin/returns/${encodeURIComponent(id)}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({action})});
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok || !data.success) return alert(data.msg||`Unable to ${action} return request.`);
+    alert(data.msg||`Return request ${action}d.`);
+    await loadAdminReturns();
+  }catch(error){
+    console.error("Return decision failed",error);
+    alert(`Unable to ${action} return request.`);
+  }
+}
+
 async function retryReturnRefund(id){ if(!confirm("Retry the Razorpay refund for this return?"))return; const res=await fetch(`${API_BASE}/admin/returns/${encodeURIComponent(id)}/refund`,{method:"POST"}); const data=await res.json().catch(()=>({})); alert(data.msg||"Refund updated"); loadAdminReturns(); }
