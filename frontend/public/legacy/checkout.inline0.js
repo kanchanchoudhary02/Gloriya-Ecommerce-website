@@ -1,4 +1,4 @@
-const API_BASE = window.API_BASE || "https://gloriya.in/api";
+const API_BASE = window.API_BASE || ((location.hostname === "localhost" || location.hostname === "127.0.0.1") ? "http://localhost:5000/api" : "https://gloriya-ecommerce-website.onrender.com/api");
 
 function getCart() {
   try {

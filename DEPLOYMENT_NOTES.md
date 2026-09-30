@@ -9,6 +9,7 @@ Required for production:
 - `RAZORPAY_KEY_ID`
 - `RAZORPAY_KEY_SECRET`
 - `SITE_ORIGIN`
+- `API_ORIGIN` (defaults to `http://localhost:5000` locally and the Render backend URL in production)
 - `CORS_ORIGIN`
 
 Never put `RAZORPAY_KEY_SECRET`, `SESSION_SECRET`, MongoDB credentials, or email API keys in frontend files or Git.

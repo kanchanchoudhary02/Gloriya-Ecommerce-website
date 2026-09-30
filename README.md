@@ -44,9 +44,7 @@ cp frontend/.env.example frontend/.env
 
 Keep the existing backend environment variable names. Do not commit real secrets.
 
-Frontend:
-
-- `VITE_API_BASE` — browser-safe API base, e.g. `http://localhost:5000/api` for local development.
+Frontend API requests use `http://localhost:5000/api` on localhost and the Render backend API in production.
 
 Backend keeps the existing names including `MAIL_*`, `MAILJET_*`, `RAZORPAY_KEY_ID`, and `RAZORPAY_KEY_SECRET`.
 

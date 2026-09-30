@@ -12,19 +12,13 @@ import pages from "./pages/pages";
  * GLOBAL API BASE
  * =========================================================
  *
- * Priority:
- * 1. VITE_API_BASE from .env
- * 2. Existing window.API_BASE
- * 3. Production Gloriya API
+ * Select the backend from the current environment so stale globals or
+ * production build variables cannot route API requests to the storefront.
  */
-const runtimeApiBase =
-  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
-    ? "http://localhost:5000/api"
-    : "https://gloriya.in/api";
 const API_BASE =
-  window.API_BASE ||
-  import.meta.env.VITE_API_BASE ||
-  runtimeApiBase;
+  window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+    ? "http://localhost:5000/api"
+    : "https://gloriya-ecommerce-website.onrender.com/api";
 
 window.API_BASE = API_BASE;
 

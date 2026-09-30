@@ -35,6 +35,9 @@ function razorClient() {
   if (!env.RAZORPAY_KEY_ID || !env.RAZORPAY_KEY_SECRET) return null;
   try { return new Razorpay({ key_id: env.RAZORPAY_KEY_ID, key_secret: env.RAZORPAY_KEY_SECRET }); } catch { return null; }
 }
+function receiptEndpoint(orderId) {
+  return `${String(env.API_ORIGIN).replace(/\/+$/, "")}/api/orders/${encodeURIComponent(String(orderId))}/receipt`;
+}
 router.get("/", requireAdmin, async (_req, res) => res.json(await Order.find({}).sort({ timestamp: -1 }).lean()));
 router.get("/user", requireAuth, async (req, res) => {
   const user = await User.findOne({ id: Number(req.auth.sub) }).lean();
@@ -42,7 +45,7 @@ router.get("/user", requireAuth, async (req, res) => {
   const orders = await Order.find({ user_email: String(user.email).toLowerCase(), status: { $ne: "cancelled" } }).sort({ timestamp: -1 }).lean();
   res.json(orders.map(order => {
     const token = buildReceiptAccessToken(order);
-    const base = `/api/orders/${encodeURIComponent(order.order_id)}/receipt`;
+    const base = receiptEndpoint(order.order_id);
     return { ...order, receipt_url: `${base}?customer=1&token=${encodeURIComponent(token)}`, receipt_download_url: `${base}?format=pdf&download=1&token=${encodeURIComponent(token)}` };
   }));
 });
@@ -208,8 +211,8 @@ router.post("/verify", async (req, res) => {
   // Idempotency: never finalize the same successful payment twice.
   if (order.status === "completed" && String(order.payment_id || "") === paymentId) {
     const token = buildReceiptAccessToken(order);
-    const receiptUrl = `/api/orders/${encodeURIComponent(order.order_id)}/receipt?customer=1`;
-    const receiptDownloadUrl = `/api/orders/${encodeURIComponent(order.order_id)}/receipt?format=pdf&download=1&token=${encodeURIComponent(token)}`;
+    const receiptUrl = `${receiptEndpoint(order.order_id)}?customer=1`;
+    const receiptDownloadUrl = `${receiptEndpoint(order.order_id)}?format=pdf&download=1&token=${encodeURIComponent(token)}`;
     return res.json({ success:true, msg: "Payment already verified", order_id: order.order_id, receipt_url: receiptUrl, receipt_download_url: receiptDownloadUrl });
   }
 
@@ -267,7 +270,7 @@ router.post("/verify", async (req, res) => {
       if (order.pincode) user.pincode = order.pincode;
       user.orders = Array.isArray(user.orders) ? user.orders : [];
       const existing = user.orders.find(x => String(x?.order_id) === String(order.order_id));
-      const orderSnapshot = { order_id: order.order_id, amount: order.amount, status: "completed", payment_id: paymentId, payment_status: paymentStatus, items: order.items || [], timestamp: order.timestamp, receipt_url: `/api/orders/${encodeURIComponent(order.order_id)}/receipt?customer=1` };
+      const orderSnapshot = { order_id: order.order_id, amount: order.amount, status: "completed", payment_id: paymentId, payment_status: paymentStatus, items: order.items || [], timestamp: order.timestamp, receipt_url: `${receiptEndpoint(order.order_id)}?customer=1` };
       if (existing) Object.assign(existing, orderSnapshot);
       else user.orders.push(orderSnapshot);
       await user.save();
@@ -284,8 +287,8 @@ router.post("/verify", async (req, res) => {
     }
 
     const receiptToken = buildReceiptAccessToken(order);
-    const receiptUrl = `/api/orders/${encodeURIComponent(order.order_id)}/receipt?customer=1`;
-    const receiptDownloadUrl = `/api/orders/${encodeURIComponent(order.order_id)}/receipt?format=pdf&download=1&token=${encodeURIComponent(receiptToken)}`;
+    const receiptUrl = `${receiptEndpoint(order.order_id)}?customer=1`;
+    const receiptDownloadUrl = `${receiptEndpoint(order.order_id)}?format=pdf&download=1&token=${encodeURIComponent(receiptToken)}`;
     return res.json({ success:true, msg:"Payment verified and order completed", order_id:order.order_id, payment_id:paymentId, receipt_url:receiptUrl, receipt_download_url:receiptDownloadUrl });
   } catch (error) {
     const code = error?.error?.code || error?.code || "PAYMENT_VERIFICATION_ERROR";

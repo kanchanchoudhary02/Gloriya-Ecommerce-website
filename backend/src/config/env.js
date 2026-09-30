@@ -15,6 +15,11 @@ const env = {
   CORS_ORIGIN: process.env.CORS_ORIGIN || "*",
   SITE_ORIGIN:
     process.env.SITE_ORIGIN || "https://gloriya.in",
+  API_ORIGIN:
+    process.env.API_ORIGIN || process.env.RENDER_EXTERNAL_URL ||
+    (process.env.NODE_ENV === "production"
+      ? "https://gloriya-ecommerce-website.onrender.com"
+      : `http://localhost:${Number(process.env.PORT || 5000)}`),
 
   // Auth
   SESSION_SECRET: process.env.SESSION_SECRET || "",

@@ -3,7 +3,7 @@
 // It keeps your original structure but fixes discount handling and cache invalidation bugs,
 // and makes product_id comparisons numeric and robust.
 
-const API_BASE = window.API_BASE || "https://gloriya.in/api";
+const API_BASE = window.API_BASE || ((location.hostname === "localhost" || location.hostname === "127.0.0.1") ? "http://localhost:5000/api" : "https://gloriya-ecommerce-website.onrender.com/api");
 const MAX_MEDIA_FILES = 10;
 
 function resolveMediaUrl(value) {

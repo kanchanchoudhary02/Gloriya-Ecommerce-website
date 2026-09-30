@@ -170,14 +170,14 @@ async function resendSend({
 
 
 function publicApiOrigin() {
-  const configured = String(env.SITE_ORIGIN || "").trim().replace(/\/+$/, "");
+  const configured = String(env.API_ORIGIN || "").trim().replace(/\/+$/, "");
   try {
     const u = new URL(configured);
     if (u.protocol !== "http:" && u.protocol !== "https:") throw new Error("invalid protocol");
     if (!u.hostname) throw new Error("missing hostname");
     return `${u.origin}/api`;
   } catch {
-    return "https://gloriya.in/api";
+    return "https://gloriya-ecommerce-website.onrender.com/api";
   }
 }
 
