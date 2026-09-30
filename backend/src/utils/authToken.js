@@ -4,6 +4,18 @@ import { env } from "../config/env.js";
 const secret = String(env.SESSION_SECRET || "").trim();
 if (!secret) console.warn("SESSION_SECRET is not configured; login tokens are disabled until it is set.");
 
+export const AUTH_TOKEN_TTL_SECONDS = 60 * 60 * 12;
+export const AUTH_COOKIE_NAME = "gloriya_auth";
+export function authCookieOptions(origin = "") {
+  const secureCookie = origin ? /^https:/i.test(origin) : /^https:/i.test(String(env.API_ORIGIN || ""));
+  return {
+    httpOnly: true,
+    secure: secureCookie,
+    sameSite: secureCookie ? "none" : "lax",
+    path: "/api"
+  };
+}
+
 function b64url(value) {
   return Buffer.from(value).toString("base64url");
 }
@@ -13,7 +25,7 @@ function sign(payload) {
   return crypto.createHmac("sha256", secret).update(payload).digest("base64url");
 }
 
-export function createAuthToken(user, ttlSeconds = 60 * 60 * 12) {
+export function createAuthToken(user, ttlSeconds = AUTH_TOKEN_TTL_SECONDS) {
   const payload = JSON.stringify({
     sub: Number(user.id),
     role: String(user.role || "user"),
@@ -42,8 +54,10 @@ export function verifyAuthToken(token) {
 
 export function requireAuth(req, res, next) {
   const header = String(req.headers.authorization || "");
-  const token = header.startsWith("Bearer ") ? header.slice(7).trim() : "";
-  const payload = verifyAuthToken(token);
+  const bearerToken = header.startsWith("Bearer ") ? header.slice(7).trim() : "";
+  const cookie = String(req.headers.cookie || "").split(";").map((part) => part.trim()).find((part) => part.startsWith(`${AUTH_COOKIE_NAME}=`));
+  const cookieToken = cookie ? cookie.slice(AUTH_COOKIE_NAME.length + 1) : "";
+  const payload = verifyAuthToken(bearerToken) || verifyAuthToken(cookieToken);
   if (!payload) return res.status(401).json({ msg: "Authentication required" });
   req.auth = payload;
   next();

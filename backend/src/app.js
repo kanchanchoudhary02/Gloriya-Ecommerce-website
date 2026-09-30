@@ -17,20 +17,25 @@ import { errorHandler } from "./middleware/error.js";
 
 const app = express();
 app.use(helmet({ crossOriginResourcePolicy: false }));
-const allowedOrigins = String(env.CORS_ORIGIN || "*")
-  .split(",")
-  .map((value) => value.trim())
-  .filter(Boolean);
+const allowedOrigins = [...new Set([
+  ...String(env.CORS_ORIGIN || "https://gloriya.in,https://www.gloriya.in")
+    .split(",")
+    .map((value) => value.trim())
+    .filter((value) => value && value !== "*"),
+  String(env.SITE_ORIGIN || "https://gloriya.in").trim().replace(/\/$/, "")
+])];
 
 app.use(cors({
   origin(origin, callback) {
     // Allow non-browser/server-to-server requests with no Origin header.
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes("*") || allowedOrigins.includes(origin)) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
     // Local Vite development frontend.
     if (/^https?:\/\/(localhost|127\.0\.0\.1):5173$/.test(origin)) return callback(null, true);
     return callback(new Error(`CORS blocked origin: ${origin}`));
   },
+  methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 }));
 app.use(express.json({ limit: "10mb" }));

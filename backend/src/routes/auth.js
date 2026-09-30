@@ -3,7 +3,7 @@ import User from "../models/User.js";
 import { createWerkzeugScryptHash, verifyWerkzeugPassword } from "../utils/password.js";
 import { nextNumericId } from "../utils/ids.js";
 import { sendWelcomeEmail, sendPasswordResetEmail } from "../services/mail.js";
-import { createAuthToken, requireAuth } from "../utils/authToken.js";
+import { AUTH_COOKIE_NAME, AUTH_TOKEN_TTL_SECONDS, authCookieOptions, createAuthToken, requireAuth } from "../utils/authToken.js";
 import crypto from "node:crypto";
 import { env } from "../config/env.js";
 
@@ -32,7 +32,13 @@ router.post("/login", async (req, res) => {
   const safeUser = { id: user.id, name: user.name, email: user.email, role: user.role, phone: user.phone || "", address: user.address || "", city: user.city || "", pincode: user.pincode || "", wishlist: user.wishlist || [], cart: user.cart || [], orders: user.orders || [] };
   let token;
   try { token = createAuthToken(user); } catch (error) { return res.status(503).json({ msg: "Authentication service is not configured on the server" }); }
+  res.cookie(AUTH_COOKIE_NAME, token, { ...authCookieOptions(req.get("origin")), maxAge: AUTH_TOKEN_TTL_SECONDS * 1000 });
   res.json({ msg: "Login successful", token, user: safeUser, redirect });
+});
+
+router.post("/logout", (req, res) => {
+  res.clearCookie(AUTH_COOKIE_NAME, authCookieOptions(req.get("origin")));
+  res.json({ msg: "Logged out" });
 });
 
 router.get("/me", requireAuth, async (req, res) => {

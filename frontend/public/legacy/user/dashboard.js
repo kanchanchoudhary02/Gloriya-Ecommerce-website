@@ -34,8 +34,12 @@ async function loadSection(section){
 async function loadOrders(content){
  content.innerHTML=`<h4>🛍 Your Orders</h4><p>Loading...</p>`;
  try{
-  const res=await fetch(`${API_BASE}/orders/user`,{headers:authHeaders()}); const orders=(await res.json()).filter(order=>String(order.status||"").toLowerCase()!=="cancelled");
-  if(!res.ok) throw new Error(orders.msg||"Failed");
+  const res=await fetch(`${API_BASE}/orders/user`,{headers:authHeaders(),credentials:"include"});
+  const data=await res.json().catch(()=>null);
+  if(res.status===401){content.innerHTML=`<h4>🛍 Your Orders</h4><p class="text-danger">Your session has expired. <a href="../login.html">Log in again</a> to view your orders.</p>`;return;}
+  if(!res.ok) throw new Error(data?.msg||"Failed to load orders");
+  if(!Array.isArray(data)) throw new Error(data?.msg||"Invalid orders response");
+  const orders=data.filter(order=>order&&typeof order==="object"&&String(order.status||"").toLowerCase()!=="cancelled");
   if(!orders.length){content.innerHTML=`<h4>🛍 Your Orders</h4><p class="text-muted">You haven’t placed any orders yet.</p>`;return;}
   content.innerHTML=`<h4>🛍 Your Orders</h4>`+orders.map(order=>{
    const created=new Date(order.createdAt||order.timestamp||0); const canCancel=Number.isFinite(created.getTime())&&Date.now()-created.getTime()<=86400000&&!['cancelled','delivered'].includes(order.status);
@@ -57,17 +61,17 @@ function showOrderActionDialog({title, intro, reasons, details=false}){
 }
 async function cancelMyOrder(orderId){
  const choice=await showOrderActionDialog({title:"Cancel Order",intro:"Orders can be cancelled only within 24 hours of placing them.",reasons:["Changed my mind","Ordered by mistake","Found another product","Delivery time issue","Other"]}); if(!choice)return;
- const res=await fetch(`${API_BASE}/orders/${encodeURIComponent(orderId)}/cancel`,{method:"POST",headers:authHeaders({"Content-Type":"application/json"}),body:JSON.stringify(choice)});
+ const res=await fetch(`${API_BASE}/orders/${encodeURIComponent(orderId)}/cancel`,{method:"POST",headers:authHeaders({"Content-Type":"application/json"}),credentials:"include",body:JSON.stringify(choice)});
  const data=await res.json().catch(()=>({})); alert(res.ok ? (data.msg || "Order cancelled successfully. Your payment refund has been initiated and should be received within 24 hours.") : (data.msg || "Cancellation failed.")); if(res.ok) loadSection("orders");
 }
 async function returnMyOrder(orderId){
  const choice=await showOrderActionDialog({title:"Request a Return",intro:"Returns can be requested within 7 days after delivery and are reviewed by our team.",reasons:["Damaged item","Wrong item received","Item not as described","Quality issue","Size / fit issue","Other"],details:true}); if(!choice)return;
- const res=await fetch(`${API_BASE}/orders/${encodeURIComponent(orderId)}/return`,{method:"POST",headers:authHeaders({"Content-Type":"application/json"}),body:JSON.stringify(choice)});
+ const res=await fetch(`${API_BASE}/orders/${encodeURIComponent(orderId)}/return`,{method:"POST",headers:authHeaders({"Content-Type":"application/json"}),credentials:"include",body:JSON.stringify(choice)});
  const data=await res.json().catch(()=>({})); alert(data.msg||"Return request submitted."); if(res.ok) loadSection("orders");
 }
 async function openReceiptPdf(orderId){
  try{
-  const res=await fetch(`${API_BASE}/orders/${encodeURIComponent(orderId)}/receipt?customer=1&format=pdf&download=1`,{headers:authHeaders()});
+  const res=await fetch(`${API_BASE}/orders/${encodeURIComponent(orderId)}/receipt?customer=1&format=pdf&download=1`,{headers:authHeaders(),credentials:"include"});
   if(!res.ok) throw new Error(await res.text()||"Receipt could not be generated");
   const blob=await res.blob(); const url=URL.createObjectURL(blob);
   const win=window.open(url,"_blank","noopener");
@@ -76,4 +80,4 @@ async function openReceiptPdf(orderId){
  }catch(e){alert(e.message||"Receipt could not be downloaded.");}
 }
 
-function logout(){localStorage.removeItem("user");localStorage.removeItem("auth_token");window.location.href="../index.html";}
+function logout(){fetch(`${API_BASE}/auth/logout`,{method:"POST",credentials:"include"}).catch(()=>{});localStorage.removeItem("user");localStorage.removeItem("auth_token");window.location.href="../index.html";}

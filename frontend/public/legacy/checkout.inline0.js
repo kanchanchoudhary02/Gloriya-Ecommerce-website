@@ -54,7 +54,7 @@ async function refreshLoggedInUser() {
   const token = localStorage.getItem("auth_token") || "";
   if (!token) return;
   try {
-    const res = await fetch(`${API_BASE}/auth/me`, { headers: { Authorization: `Bearer ${token}` } });
+    const res = await fetch(`${API_BASE}/auth/me`, { headers: { Authorization: `Bearer ${token}` }, credentials: "include" });
     if (!res.ok) return;
     const data = await res.json();
     if (data?.user) localStorage.setItem("user", JSON.stringify(data.user));
