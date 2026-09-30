@@ -1,0 +1,151 @@
+{
+  "index": {
+    "file": "index.html",
+    "scripts": [
+      "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js",
+      "https://unpkg.com/aos@2.3.4/dist/aos.js",
+      "/legacy/main.js",
+      "/legacy/cart-utils.js"
+    ],
+    "inline": [
+      "/legacy/index.inline0.js",
+      "/legacy/index.inline1.js",
+      "/legacy/index.inline2.js",
+      "/legacy/index.inline3.js"
+    ]
+  },
+  "shop": {
+    "file": "shop.html",
+    "scripts": [
+      "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    ],
+    "inline": [
+      "/legacy/shop.inline0.js"
+    ]
+  },
+  "product": {
+    "file": "product.html",
+    "scripts": [
+      "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    ],
+    "inline": [
+      "/legacy/product.inline0.js"
+    ]
+  },
+  "cart": {
+    "file": "cart.html",
+    "scripts": [],
+    "inline": [
+      "/legacy/cart.inline0.js"
+    ]
+  },
+  "checkout": {
+    "file": "checkout.html",
+    "scripts": [
+      "https://checkout.razorpay.com/v1/checkout.js"
+    ],
+    "inline": [
+      "/legacy/checkout.inline0.js"
+    ]
+  },
+  "about": {
+    "file": "about.html",
+    "scripts": [],
+    "inline": []
+  },
+  "contact": {
+    "file": "contact.html",
+    "scripts": [
+      "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    ],
+    "inline": [
+      "/legacy/contact.inline0.js",
+      "/legacy/contact.inline1.js"
+    ]
+  },
+  "login": {
+    "file": "login.html",
+    "scripts": [
+      "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    ],
+    "inline": [
+      "/legacy/login.inline0.js"
+    ]
+  },
+  "register": {
+    "file": "register.html",
+    "scripts": [
+      "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    ],
+    "inline": [
+      "/legacy/register.inline0.js"
+    ]
+  },
+  "wishlist": {
+    "file": "wishlist.html",
+    "scripts": [
+      "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js",
+      "/legacy/wishlist.js"
+    ],
+    "inline": [
+      "/legacy/wishlist.inline0.js"
+    ]
+  },
+  "blog__art-of-gifting": {
+    "file": "blog/art-of-gifting.html",
+    "scripts": [],
+    "inline": []
+  },
+  "blog__top-jewellery-trends-2025": {
+    "file": "blog/top-jewellery-trends-2025.html",
+    "scripts": [],
+    "inline": []
+  },
+  "blog__caring-for-your-jewellery": {
+    "file": "blog/caring-for-your-jewellery.html",
+    "scripts": [],
+    "inline": []
+  },
+  "admin__admin": {
+    "file": "admin/admin.html",
+    "scripts": [
+      "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js",
+      "/legacy/admin/summary-tab.js",
+      "/legacy/admin/admin.js"
+    ],
+    "inline": [
+      "/legacy/admin__admin.inline0.js"
+    ]
+  },
+  "user__dashboard": {
+    "file": "user/dashboard.html",
+    "scripts": [
+      "/legacy/user/dashboard.js",
+      "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    ],
+    "inline": []
+  },
+  "user__contact": {
+    "file": "user/contact.html",
+    "scripts": [
+      "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    ],
+    "inline": [
+      "/legacy/user__contact.inline0.js"
+    ]
+  },
+  "user__wishlist": {
+    "file": "user/wishlist.html",
+    "scripts": [],
+    "inline": [
+      "/legacy/user__wishlist.inline0.js"
+    ]
+  },
+  "user__profile": {
+    "file": "user/profile.html",
+    "scripts": [],
+    "inline": [
+      "/legacy/user__profile.inline0.js"
+    ]
+  }
+}

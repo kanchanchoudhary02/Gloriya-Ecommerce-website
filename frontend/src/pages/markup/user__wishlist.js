@@ -1,0 +1,1 @@
+export const markup = "\n\n    <section class=\"container py-5\">\n      <h2 class=\"mb-4 text-center\">❤️ My Wishlist</h2>\n      <div id=\"wishlistContainer\" class=\"row g-4\"></div>\n    </section>\n\n    ";

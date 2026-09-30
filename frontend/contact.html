@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en" data-page="contact">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  <!-- Title & Basic SEO -->
+  <title>Gloriya Jewellery – Modern Luxury</title>
+  <meta name="description" content="Handcrafted fine jewellery — modern designs, certified stones and insured shipping.">
+
+  <!-- Favicons (Updated with Logo) -->
+  <link rel="icon" type="image/png" sizes="32x32" href="https://gloriya.in/images/logo.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://gloriya.in/images/logo.png">
+  <link rel="apple-touch-icon" href="https://gloriya.in/images/logo.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#000000">
+
+  <!-- Open Graph (Social Sharing Preview) -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Gloriya Jewellery">
+  <meta property="og:title" content="Gloriya Jewellery – Modern Luxury">
+  <meta property="og:description" content="Handcrafted fine jewellery — modern designs, certified stones and insured shipping.">
+  <meta property="og:image" content="https://gloriya.in/og/og-default.jpg">
+  <meta property="og:url" content="https://gloriya.in/">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Gloriya Jewellery – Modern Luxury">
+  <meta name="twitter:description" content="Handcrafted fine jewellery — modern designs, certified stones and insured shipping.">
+  <meta name="twitter:image" content="https://gloriya.in/og/og-default.jpg">
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- FontAwesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <!-- AOS -->
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet"/>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght:600&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
+  <!-- Site CSS -->
+  <link href="/style.css" rel="stylesheet"/>
+
+  <style>
+    #reviewsCarousel.carousel-fade .carousel-item { transition: opacity .6s ease-in-out; }
+    .product-card.new-arrival-card .overlay .badge { border-radius:999px; padding:.35rem .6rem; font-weight:600; }
+  </style>
+  <style>
+    :root{
+      --rose:#d8a6a0;
+      --rose-deep:#c78e82;
+      --ink:#2b1e1c;
+    }
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;}
+
+    /* ========= HERO (scoped) ========= */
+    .contact-hero{
+      --hero-pad: clamp(48px, 6vw, 96px);
+      position: relative; overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.60), rgba(255,255,255,.85)),
+        url('https://images.unsplash.com/photo-1603569283847-1f04b18923fa?q=80&w=2000&auto=format&fit=crop') center/cover no-repeat;
+      padding: var(--hero-pad) 0;
+    }
+    .contact-hero .glass{
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      background: linear-gradient(135deg, rgba(255,255,255,.70), rgba(255,255,255,.50));
+      border: 1px solid rgba(255,255,255,.6);
+      border-radius: 20px;
+      box-shadow: 0 24px 48px rgba(0,0,0,.08);
+    }
+    .contact-hero h1{
+      font-family:"Playfair Display",serif;
+      font-weight:700;
+      color:var(--ink);
+      letter-spacing:.2px;
+    }
+    .subtitle{
+      display:inline-block; font-weight:700; font-size:.8rem; letter-spacing:.18em;
+      text-transform:uppercase; color:var(--rose-deep); background:rgba(215,166,160,.18);
+      border:1px solid rgba(215,166,160,.35); padding:.35rem .6rem; border-radius:999px;
+    }
+
+    /* ========= INFO CARDS ========= */
+    .info-card{
+      border:0; border-radius:18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.06);
+      height:100%;
+    }
+    .info-card .icon-wrap{
+      width:44px; height:44px; border-radius:999px;
+      display:inline-flex; align-items:center; justify-content:center;
+      background: linear-gradient(160deg,var(--rose),var(--rose-deep));
+      color:#fff;
+    }
+    .btn-modern{
+      border-radius:999px; border:1px solid rgba(0,0,0,.08);
+      padding:.55rem 1rem; font-weight:600; text-decoration:none;
+      background:linear-gradient(160deg,var(--rose),var(--rose-deep)); color:#fff;
+      box-shadow:0 10px 20px rgba(0,0,0,.08);
+    }
+    .btn-modern:hover{ filter:brightness(.98); color:#fff; }
+
+    /* Form */
+    .form-control, .form-select{
+      border-radius:12px;
+    }
+
+    /* FAQ */
+    .accordion-button{
+      font-weight:600;
+    }
+
+    /* Map ratio fix */
+    .ratio > iframe{ border:0; }
+
+    @media (max-width: 575.98px){
+      .contact-hero{ background-position: 40% 50%; }
+    }
+  </style>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body data-page="contact">
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>

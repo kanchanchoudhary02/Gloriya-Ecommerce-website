@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en" data-page="index">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  <!-- Title & Basic SEO -->
+  <title>Gloriya Jewellery – Modern Luxury</title>
+  <meta name="description" content="Handcrafted fine jewellery — modern designs, certified stones and insured shipping.">
+
+  <!-- Favicons (Updated with Logo) -->
+  <link rel="icon" type="image/png" sizes="32x32" href="https://gloriya.in/images/logo.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://gloriya.in/images/logo.png">
+  <link rel="apple-touch-icon" href="https://gloriya.in/images/logo.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#000000">
+
+  <!-- Open Graph (Social Sharing Preview) -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Gloriya Jewellery">
+  <meta property="og:title" content="Gloriya Jewellery – Modern Luxury">
+  <meta property="og:description" content="Handcrafted fine jewellery — modern designs, certified stones and insured shipping.">
+  <meta property="og:image" content="https://gloriya.in/og/og-default.jpg">
+  <meta property="og:url" content="https://gloriya.in/">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Gloriya Jewellery – Modern Luxury">
+  <meta name="twitter:description" content="Handcrafted fine jewellery — modern designs, certified stones and insured shipping.">
+  <meta name="twitter:image" content="https://gloriya.in/og/og-default.jpg">
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- FontAwesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <!-- AOS -->
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet"/>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
+  <!-- Site CSS -->
+  <link href="/style.css" rel="stylesheet"/>
+
+  <style>
+    #reviewsCarousel.carousel-fade .carousel-item { transition: opacity .6s ease-in-out; }
+    .product-card.new-arrival-card .overlay .badge { border-radius:999px; padding:.35rem .6rem; font-weight:600; }
+
+    /* ================= TRENDING PRODUCTS ================= */
+    .trending-section .section-title h2 {
+      font-family: "Playfair Display", serif;
+    }
+
+    .trending-section .trending-card {
+      background: #fff;
+      border-radius: 18px;
+      overflow: hidden;
+      height: 100%;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+      transition: transform .3s ease, box-shadow .3s ease;
+      border: 1px solid rgba(0,0,0,.05);
+    }
+
+    .trending-section .trending-card:hover {
+      transform: translateY(-7px);
+      box-shadow: 0 18px 40px rgba(0,0,0,.13);
+    }
+
+    .trending-section .trending-img {
+      position: relative;
+      overflow: hidden;
+      background: #f7f3f1;
+    }
+
+    .trending-section .trending-img img {
+      width: 100%;
+      height: 330px;
+      object-fit: cover;
+      display: block;
+      transition: transform .5s ease;
+    }
+
+    .trending-section .trending-card:hover .trending-img img {
+      transform: scale(1.05);
+    }
+
+    .trending-section .trending-label {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: rgba(255,255,255,.92);
+      color: #2b1e1c;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .04em;
+      box-shadow: 0 5px 15px rgba(0,0,0,.08);
+    }
+
+    .trending-section .trending-info {
+      padding: 18px 18px 20px;
+      text-align: center;
+    }
+
+    .trending-section .trending-info h5 {
+      font-family: "Playfair Display", serif;
+      font-weight: 600;
+      margin-bottom: 7px;
+      color: #2b1e1c;
+    }
+
+    .trending-section .trending-price {
+      color: #b27668;
+      font-weight: 700;
+      font-size: 17px;
+      margin-bottom: 14px;
+    }
+
+    .trending-section .trending-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      border: none;
+      border-radius: 999px;
+      padding: 9px 18px;
+      background: #d8a6a0;
+      color: #241815;
+      font-weight: 600;
+      text-decoration: none;
+      transition: .2s ease;
+    }
+
+    .trending-section .trending-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(.96);
+    }
+
+    .trending-section .carousel-control-prev,
+    .trending-section .carousel-control-next {
+      width: 42px;
+      height: 42px;
+      top: 45%;
+      transform: translateY(-50%);
+      background: rgba(43,30,28,.8);
+      border-radius: 50%;
+      opacity: 1;
+    }
+
+    .trending-section .carousel-control-prev {
+      left: -5px;
+    }
+
+    .trending-section .carousel-control-next {
+      right: -5px;
+    }
+
+    @media (max-width: 767px) {
+      .trending-section .trending-img img {
+        height: 280px;
+      }
+
+      .trending-section .carousel-control-prev {
+        left: 5px;
+      }
+
+      .trending-section .carousel-control-next {
+        right: 5px;
+      }
+    }
+  </style>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body data-page="index">
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>

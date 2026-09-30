@@ -1,0 +1,22 @@
+{
+  "name": "Gloriya Jewellery",
+  "short_name": "Gloriya",
+  "description": "Gloriya Jewellery - Modern Luxury Jewellery",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f1eb",
+  "theme_color": "#d8a6a0",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
