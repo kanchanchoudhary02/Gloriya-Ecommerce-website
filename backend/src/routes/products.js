@@ -5,19 +5,12 @@ import { requireAdmin } from "../utils/authToken.js";
 import { enrichProduct, enrichProducts } from "../utils/enrichProduct.js";
 
 const router = express.Router();
-const SAMPLE_PRODUCTS = [
-  { id: 1, name: "Diamond Ring", price: 25000, image: "https://wpolive.com/html/jowenly/assets/images/arrival/1.jpg", description: "Beautiful handcrafted ring", stock: true, reminders: [] },
-  { id: 2, name: "Gold Necklace", price: 45000, image: "https://wpolive.com/html/jowenly/assets/images/arrival/3.jpg", description: "Elegant gold necklace", stock: true, reminders: [] },
-  { id: 3, name: "Pearl Earrings", price: 15000, image: "https://i.pinimg.com/1200x/72/1c/fb/721cfba2ab130a6495a895d07b0fcabc.jpg", description: "Classy pearl earrings", stock: true, reminders: [] },
-  { id: 4, name: "Bridal Set", price: 95000, image: "https://images.unsplash.com/photo-1600180758895-44e68e87b98d?auto=format&fit=crop&w=800&q=80", description: "Complete bridal jewellery set", stock: true, reminders: [] }
-];
 
 router.get("/", async (req, res) => {
   const query = req.query?.trending ? { trending: true } : {};
   const requestedLimit = Number.parseInt(req.query?.limit || (req.query?.trending ? "4" : "500"), 10) || (req.query?.trending ? 4 : 500);
   const limit = req.query?.trending ? 4 : Math.min(1000, Math.max(1, requestedLimit));
   const products = await Product.find(query).sort({ updatedAt: -1, id: 1 }).limit(limit).lean();
-  if (!products.length && !req.query?.trending) return res.json(SAMPLE_PRODUCTS);
   res.json(enrichProducts(products).map(p => ({ ...p, price: Math.round(Number(p.price || 0)) })));
 });
 
@@ -32,9 +25,31 @@ router.get("/random", async (req, res) => {
   res.json(enrichProducts(products.slice(0, limit)));
 });
 
+// "You may also like": products picked in the admin panel (Related products) come first.
+// When none were picked, same-category products are used, then any other product.
+router.get("/:product_id/related", async (req, res) => {
+  const id = Number(req.params.product_id);
+  const limit = Math.min(12, Math.max(1, Number.parseInt(req.query.limit ?? "4", 10) || 4));
+  const base = await Product.findOne({ id }).lean();
+  if (!base) return res.status(404).json({ msg: "Product not found" });
+  const picked = (Array.isArray(base.related_ids) ? base.related_ids : []).map(Number).filter((n) => Number.isFinite(n) && n !== id);
+  let out = [];
+  if (picked.length) {
+    const docs = await Product.find({ id: { $in: picked } }).lean();
+    out = picked.map((pid) => docs.find((d) => Number(d.id) === pid)).filter(Boolean);
+  } else {
+    const shuffle = (arr) => arr.sort(() => Math.random() - 0.5);
+    const same = base.category ? shuffle(await Product.find({ id: { $ne: id }, category: base.category }).lean()) : [];
+    const sameIds = new Set(same.map((p) => p.id));
+    const others = shuffle(await Product.find({ id: { $nin: [id, ...sameIds] } }).limit(60).lean());
+    out = [...same, ...others].slice(0, limit);
+  }
+  res.json(enrichProducts(out.slice(0, picked.length ? Math.max(limit, picked.length) : limit)));
+});
+
 router.get("/:product_id", async (req, res) => {
   const id = Number(req.params.product_id);
-  const product = enrichProduct(await Product.findOne({ id }).lean()) || SAMPLE_PRODUCTS.find(p => p.id === id);
+  const product = enrichProduct(await Product.findOne({ id }).lean());
   if (!product) return res.status(404).json({ msg: "Product not found" });
   product.price = Math.round(Number(product.price || 0));
   res.json(product);

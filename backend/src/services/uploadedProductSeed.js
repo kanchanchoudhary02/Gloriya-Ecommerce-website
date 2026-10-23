@@ -58,7 +58,7 @@ export async function syncUploadedProductCatalog() {
   for (const product of products) {
     const result = await Product.updateOne(
       { id: product.id },
-      { $set: product },
+      { $setOnInsert: product }, // never overwrite what the admin edited
       { upsert: true }
     );
     if (result.modifiedCount || result.upsertedCount) changed++;

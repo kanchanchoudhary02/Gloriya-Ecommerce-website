@@ -68,7 +68,11 @@ router.post("/create", async (req, res) => {
     } else if (!stock) { problems.push({ id: pid, reason: "out_of_stock" }); continue; }
     const finalUnit = applyDiscount(Math.round(Number(prod.price || 0)), pid, discounts), lineTotal = Math.round(finalUnit * qty);
     total += lineTotal;
-    serverItems.push({ id: pid, name: prod.name, sku: prod.sku, qty, unit_price: finalUnit, line_total: lineTotal, image: prod.image || (prod.media?.[0]?.url || prod.media?.[0]) });
+    // Selected stone/metal colour: validated against the product's own variants.
+    const wantStone = String(it?.variant?.stone_color || "").toLowerCase(), wantMetal = String(it?.variant?.metal_color || "").toLowerCase();
+    const variant = (wantStone || wantMetal) ? (prod.variants || []).find(v => String(v.stone_color || "").toLowerCase() === wantStone && String(v.metal_color || "").toLowerCase() === wantMetal) : null;
+    const variantLabel = variant ? [variant.stone_color, variant.metal_color].filter(Boolean).join(" / ") : "";
+    serverItems.push({ id: pid, name: variantLabel ? `${prod.name} (${variantLabel})` : prod.name, sku: prod.sku, qty, unit_price: finalUnit, line_total: lineTotal, ...(variant ? { variant: { stone_color: variant.stone_color, metal_color: variant.metal_color } } : {}), image: variant?.image || prod.image || (prod.media?.[0]?.url || prod.media?.[0]) });
   }
   if (problems.length) return res.status(400).json({ msg: "Some items are out of stock or invalid", problems });
   const amount = Math.round(total), amountPaise = amount * 100;

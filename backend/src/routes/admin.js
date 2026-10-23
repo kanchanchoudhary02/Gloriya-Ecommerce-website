@@ -2,7 +2,6 @@ import express from "express";
 import Razorpay from "razorpay";
 import multer from "multer";
 import path from "node:path";
-import fs from "node:fs/promises";
 import crypto from "node:crypto";
 import User from "../models/User.js";
 import Order from "../models/Order.js";
@@ -13,6 +12,8 @@ import { nextNumericId } from "../utils/ids.js";
 import { sendEmail, sendShippingStatusEmail } from "../services/mail.js";
 import { requireAdmin } from "../utils/authToken.js";
 import { enrichProducts } from "../utils/enrichProduct.js";
+import { toStoredUrl } from "../utils/mediaUrl.js";
+import { saveMedia, MIME_BY_EXT } from "../services/mediaStore.js";
 import Trending from "../models/Trending.js";
 import ReturnRequest from "../models/ReturnRequest.js";
 import Review from "../models/Review.js";
@@ -23,20 +24,23 @@ const router = express.Router();
 router.get("/discounts", async (_req, res) => res.json(await Discount.find({}).lean()));
 
 router.use(requireAdmin);
-const uploadDir = path.resolve(env.UPLOAD_DIR);
-const allowed = new Set(["jpg", "jpeg", "png", "webp", "svg", "gif", "mp4", "webm"]);
+const allowed = new Set(Object.keys(MIME_BY_EXT));
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024, files: 10 } });
 
+// Files are stored in MongoDB (GridFS) so they survive server restarts/redeploys.
 router.post("/uploads", upload.array("media", 10), async (req, res) => {
   if (!req.files?.length) return res.status(400).json({ msg: "No files uploaded" });
-  await fs.mkdir(uploadDir, { recursive: true }); const saved = [];
   for (const file of req.files) {
     const ext = path.extname(file.originalname).slice(1).toLowerCase();
     if (!allowed.has(ext)) return res.status(400).json({ msg: `File type not allowed: ${file.originalname}` });
+  }
+  const saved = [];
+  for (const file of req.files) {
+    const ext = path.extname(file.originalname).slice(1).toLowerCase();
     const safe = path.basename(file.originalname).replace(/[^a-zA-Z0-9._-]/g, "_");
     const name = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}-${safe}`;
-    await fs.writeFile(path.join(uploadDir, name), file.buffer);
-    saved.push({ url: `/uploads/${name}`, type: file.mimetype.startsWith("video/") || ["mp4", "webm"].includes(ext) ? "video" : "image", filename: name });
+    await saveMedia({ name, buffer: file.buffer, contentType: MIME_BY_EXT[ext] });
+    saved.push({ url: `/uploads/${name}`, type: MIME_BY_EXT[ext].startsWith("video/") ? "video" : "image", filename: name });
   }
   res.json({ msg: "Uploaded", media: saved });
 });
@@ -80,12 +84,68 @@ router.get("/users", async (_req, res) => {
 });
 router.get("/products", async (_req, res) => res.json(enrichProducts(await Product.find({}).lean())));
 
-function normalize(payload) {
-  const media = payload.media || [], first = media.find(m => m?.type === "image") || media[0], inventory = Number.parseInt(payload.inventory ?? 0, 10) || 0;
-  return { name: payload.name ?? "Untitled", price: payload.price ?? 0, description: payload.description ?? "", sku: payload.sku ?? "", inventory, stock: inventory > 0, category: payload.category ?? "", attributes: payload.attributes || {}, tags: payload.tags || [], shipping: payload.shipping || {}, return_policy: payload.return_policy || "", restock_request: Boolean(payload.restock_request), media, image: first?.url || payload.image || "", reminders: payload.reminders || [], size: payload.size ?? "", trending: Boolean(payload.trending) };
+export const MATERIALS = ["Brass", "Silver"];
+export const STONE_COLORS = ["Green", "Blue", "Red", "Pink", "Yellow", "Mint", "Orange"];
+export const METAL_COLORS = ["Gold", "Silver", "Rose Gold", "Oxidize"];
+const canon = (value, list) => { const v = String(value || "").trim().toLowerCase(); return list.find((x) => x.toLowerCase() === v) || ""; };
+
+function cleanAttributes(attrs) {
+  const out = {};
+  if (!attrs || typeof attrs !== "object" || Array.isArray(attrs)) return out;
+  for (const [k, v] of Object.entries(attrs)) {
+    const key = String(k).trim().slice(0, 60);
+    if (!key || key.startsWith("$") || key.includes(".")) continue; // illegal MongoDB keys
+    out[key] = String(v ?? "").trim().slice(0, 200);
+  }
+  return out;
+}
+
+function cleanVariants(list) {
+  const seen = new Set(), out = [];
+  for (const v of Array.isArray(list) ? list : []) {
+    const stone_color = canon(v?.stone_color, STONE_COLORS), metal_color = canon(v?.metal_color, METAL_COLORS);
+    const image = toStoredUrl(v?.image);
+    if (!image || (!stone_color && !metal_color)) continue;
+    const key = `${stone_color}|${metal_color}`;
+    if (seen.has(key)) continue;
+    seen.add(key); out.push({ stone_color, metal_color, image });
+  }
+  return out;
+}
+
+function normalize(payload, id) {
+  const media = (Array.isArray(payload.media) ? payload.media : [])
+    .map((m) => ({ url: toStoredUrl(typeof m === "string" ? m : m?.url), type: (typeof m === "object" && m?.type) || (/\.(mp4|webm|mov)$/i.test(String(m?.url || m)) ? "video" : "image") }))
+    .filter((m) => m.url);
+  const first = media.find((m) => m.type === "image") || media[0];
+  const inventory = Number.parseInt(payload.inventory ?? 0, 10) || 0;
+  const shipping = payload.shipping && typeof payload.shipping === "object" ? payload.shipping : {};
+  const related = [...new Set((Array.isArray(payload.related_ids) ? payload.related_ids : []).map(Number).filter((n) => Number.isFinite(n) && n !== Number(id)))].slice(0, 8);
+  const out = {
+    name: String(payload.name ?? "Untitled").trim() || "Untitled",
+    price: Math.max(0, Math.round(Number(payload.price) || 0)),
+    description: String(payload.description ?? ""),
+    sku: String(payload.sku ?? "").trim(),
+    inventory, stock: inventory > 0,
+    category: String(payload.category ?? "").trim(),
+    attributes: cleanAttributes(payload.attributes),
+    tags: (Array.isArray(payload.tags) ? payload.tags : []).map((t) => String(t).trim()).filter(Boolean),
+    shipping: { weight_grams: Number(shipping.weight_grams) || 0, dimensions: String(shipping.dimensions || "").trim() },
+    return_policy: String(payload.return_policy || "").trim(),
+    restock_request: Boolean(payload.restock_request),
+    media, image: first?.url || toStoredUrl(payload.image),
+    variants: cleanVariants(payload.variants),
+    related_ids: related,
+    size: String(payload.size ?? "").trim(),
+    trending: Boolean(payload.trending)
+  };
+  // Only touch reminders when they are explicitly sent (they used to be wiped on every save).
+  if (Array.isArray(payload.reminders)) out.reminders = payload.reminders;
+  return out;
 }
 router.post("/products", async (req, res) => {
-  const p = normalize(req.body || {}); p.id = await nextNumericId(Product);
+  const newId = await nextNumericId(Product);
+  const p = normalize(req.body || {}, newId); p.id = newId;
   const product = await Product.create(p); res.status(201).json({ msg: "Product added", product });
 });
 router.patch("/products/:product_id/trending", async (req, res) => {
@@ -113,9 +173,9 @@ router.put("/products/:product_id", async (req, res) => {
     const count = await Product.countDocuments({ trending: true, id: { $ne: id } });
     if (count >= 4) return res.status(400).json({ msg: "Only 4 products can be in Trending at one time." });
   }
-  const prevStock = product.stock, updated = normalize(req.body || {});
+  const prevStock = product.stock, updated = normalize(req.body || {}, id);
   Object.assign(product, updated); product.id = id;
-  if (!("reminders" in (req.body || {}))) product.reminders = product.reminders || [];
+  product.markModified("attributes"); product.markModified("shipping"); product.markModified("variants"); product.markModified("media");
   await product.save();
   if (!prevStock && product.stock && product.reminders?.length) {
     for (const email of product.reminders) { try { await sendEmail(`🎉 ${product.name} is back in stock!`, email, { textBody: `Hi! The product '${product.name}' is now available again on Gloriya Jewellery.` }); } catch {} }

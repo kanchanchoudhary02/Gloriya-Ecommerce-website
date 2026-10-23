@@ -7,6 +7,7 @@ import fs from "node:fs/promises";
 import crypto from "node:crypto";
 import { env } from "../config/env.js";
 import { requireAdmin } from "../utils/authToken.js";
+import { saveMedia, deleteMedia, MIME_BY_EXT } from "../services/mediaStore.js";
 
 const router = express.Router();
 const reviewUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024, files: 2 } });
@@ -32,14 +33,13 @@ router.post("/", reviewUpload.fields([{ name:"image", maxCount:1 }, { name:"vide
     if(!product) return res.status(404).json({msg:"Product not found"});
     const media = [];
     const files = req.files || {};
-    await fs.mkdir(path.resolve(env.UPLOAD_DIR), { recursive:true });
     for (const file of [...(files.image || []), ...(files.video || [])]) {
       const ext = path.extname(file.originalname).slice(1).toLowerCase();
       const allowed = new Set(["jpg","jpeg","png","webp","gif","mp4","webm"]);
       if (!allowed.has(ext)) return res.status(400).json({msg:`Unsupported review media type: ${file.originalname}`});
       const safe = path.basename(file.originalname).replace(/[^a-zA-Z0-9._-]/g,"_");
       const filename = `${Date.now()}-${crypto.randomUUID().slice(0,8)}-${safe}`;
-      await fs.writeFile(path.join(path.resolve(env.UPLOAD_DIR),filename),file.buffer);
+      await saveMedia({ name: filename, buffer: file.buffer, contentType: MIME_BY_EXT[ext] });
       media.push({ url:`/uploads/${filename}`, type:file.mimetype.startsWith("video/") ? "video" : "image" });
     }
     const review=await Review.create({productId:pid,name:name.trim(),email:cleanEmail.toLowerCase(),rating:r,text:text.trim(),media});
@@ -65,7 +65,7 @@ router.delete("/admin/:id", requireAdmin, async (req,res,next)=>{
     const review = await Review.findById(req.params.id);
     if (!review) return res.status(404).json({msg:"Review not found"});
     for (const media of (review.media || [])) {
-      try { await fs.unlink(path.join(path.resolve(env.UPLOAD_DIR), path.basename(String(media.url || "")))); } catch {}
+      await deleteMedia(path.basename(String(media.url || "")));
     }
     const pid = Number(review.productId);
     await review.deleteOne();

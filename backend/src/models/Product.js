@@ -16,6 +16,10 @@ const productSchema = new mongoose.Schema({
   return_policy: { type: String, default: "" },
   restock_request: { type: Boolean, default: false },
   media: { type: Array, default: [] },
+  // [{ stone_color, metal_color, image }] - picking a combination on the product page shows `image`
+  variants: { type: Array, default: [] },
+  // ids chosen in the admin panel for the "You may also like" section
+  related_ids: { type: [Number], default: [] },
   reminders: { type: Array, default: [] },
   size: { type: String, default: "" },
   trending: { type: Boolean, default: false }

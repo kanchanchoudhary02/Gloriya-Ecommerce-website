@@ -24,6 +24,7 @@ export const markup = `<footer class="gl-footer mt-5">
           <li><i class="fa-solid fa-envelope"></i><a href="mailto:gloriyafashionjewel@gmail.com">gloriyafashionjewel@gmail.com</a></li>
           <li><i class="fa-solid fa-phone"></i><a href="tel:+919414042089">+91 94140 42089</a></li>
           <li><i class="fa-brands fa-whatsapp"></i><a href="https://wa.me/919414042089" target="_blank" rel="noopener">WhatsApp</a></li>
+          <li><i class="fa-brands fa-instagram"></i><a href="https://www.instagram.com/gloriyafashionjewellery/" target="_blank" rel="noopener noreferrer">@gloriyafashionjewellery</a></li>
         </ul>
       </div>
     </div>
